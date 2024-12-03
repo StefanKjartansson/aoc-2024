@@ -1,5 +1,5 @@
 use std::cmp::Reverse;
-use std::collections::BinaryHeap;
+use std::collections::{BinaryHeap, HashMap};
 
 pub fn parse(s: &str) -> (Vec<i32>, Vec<i32>) {
     let mut a = Vec::new();
@@ -14,7 +14,7 @@ pub fn parse(s: &str) -> (Vec<i32>, Vec<i32>) {
     (a, b)
 }
 
-pub fn total_distance(left: Vec<i32>, right: Vec<i32>) -> i32 {
+pub fn total_distance(left: &Vec<i32>, right: &Vec<i32>) -> i32 {
     let mut left_heap = BinaryHeap::new();
     let mut right_heap = BinaryHeap::new();
     for x in left {
@@ -36,10 +36,22 @@ pub fn total_distance(left: Vec<i32>, right: Vec<i32>) -> i32 {
     distance
 }
 
+pub fn similarity_score(left: &Vec<i32>, right: &Vec<i32>) -> i32 {
+    let mut right_counter = HashMap::new();
+    for x in right {
+        *right_counter.entry(x).or_insert(0) += 1;
+    }
+    let mut score = 0;
+    for k in left {
+        let right_count = right_counter.get(&k).unwrap_or(&0);
+        score += k * right_count;
+    }
+    score
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    static input: &str = include_str!("input");
 
     #[test]
     fn exampl_test() {
@@ -51,6 +63,7 @@ mod tests {
 3   3";
         let (a, b) = parse(data);
 
-        assert_eq!(total_distance(a, b), 11);
+        assert_eq!(total_distance(&a, &b), 11);
+        assert_eq!(similarity_score(&a, &b), 31);
     }
 }
